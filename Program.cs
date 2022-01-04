@@ -29,6 +29,3 @@ app.MapGet("/languages/{user}", (string user, UserService userService) =>
 .WithName("GetUserLanguages");
 
 app.Run();
-
-public record UserRepository(string Name, string[] Languages);
-public record UserLanguage(string Name, double Percentage);
