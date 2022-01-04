@@ -9,12 +9,19 @@ namespace GitHubUserApi
 
         private record UserData(UserRepository[] UserRepositories, UserLanguage[] UserLanguages, DateTime CacheExpiration);
 
+        private readonly IConfiguration configuration;
         private readonly GitHubClient client;
         private readonly Dictionary<string, UserData> userDataCache;
 
-        public UserService()
+        public UserService(IConfiguration configuration)
         {
-            client = new GitHubClient(new ProductHeaderValue("velotri-githubuserapi"));
+            this.configuration = configuration;
+            client = new GitHubClient(new ProductHeaderValue(configuration["GitHubClient:UserAgent"]));
+            var personalAccessToken = configuration["GitHubClient:PersonalAccessToken"];
+            if (!string.IsNullOrEmpty(personalAccessToken))
+            {
+                client.Credentials = new Credentials(personalAccessToken);
+            }
             userDataCache = new Dictionary<string, UserData>();
         }
 
@@ -70,7 +77,8 @@ namespace GitHubUserApi
                 .OrderByDescending(o => o.Percentage)
                 .ToArray();
 
-            userDataCache[user] = new UserData(userRepositories.ToArray(), userLanguages, DateTime.UtcNow.AddMinutes(1));
+            var dataExpirationInMinutes = int.Parse(configuration["GitHubClient:DataExpirationInMinutes"]);
+            userDataCache[user] = new UserData(userRepositories.ToArray(), userLanguages, DateTime.UtcNow.AddMinutes(dataExpirationInMinutes));
         }
     }
 }
