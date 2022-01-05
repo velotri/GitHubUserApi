@@ -16,16 +16,53 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/repositories/{user}", (string user, UserService userService) =>
+var rateLimitReachedErrorMessage = "GitHub API rate limit has been reached. Try again later.";
+var notFoundErrorResponse = new
 {
-    return userService.GetUserRepositories(user);
-})
-.WithName("GetUserRepositories");
+    Status = 404,
+    Detail = "User does not exist."
+};
 
-app.MapGet("/languages/{user}", (string user, UserService userService) =>
+app.MapGet("/repositories/{user}", async (string user, UserService userService) =>
 {
-    return userService.GetUserLanguages(user);
+    try
+    {
+        var repositories = await userService.GetUserRepositories(user);
+        return Results.Ok(repositories);
+    }
+    catch (Octokit.RateLimitExceededException)
+    {
+        return Results.Problem(statusCode: 503, detail: rateLimitReachedErrorMessage);
+    }
+    catch (Octokit.NotFoundException)
+    {
+        return Results.NotFound(notFoundErrorResponse);
+    }
 })
-.WithName("GetUserLanguages");
+.WithName("GetUserRepositories")
+.Produces<UserRepository[]>()
+.Produces(StatusCodes.Status404NotFound)
+.Produces(StatusCodes.Status503ServiceUnavailable);
+
+app.MapGet("/languages/{user}", async (string user, UserService userService) =>
+{
+    try
+    {
+        var repositories = await userService.GetUserLanguages(user);
+        return Results.Ok(repositories);
+    }
+    catch (Octokit.RateLimitExceededException)
+    {
+        return Results.Problem(statusCode: 503, detail: rateLimitReachedErrorMessage);
+    }
+    catch (Octokit.NotFoundException)
+    {
+        return Results.NotFound(notFoundErrorResponse);
+    }
+})
+.WithName("GetUserLanguages")
+.Produces<UserLanguage[]>()
+.Produces(StatusCodes.Status404NotFound)
+.Produces(StatusCodes.Status503ServiceUnavailable);
 
 app.Run();

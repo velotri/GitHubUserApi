@@ -2,11 +2,11 @@
 
 namespace GitHubUserApi
 {
+    public record UserRepository(string Name, string[] Languages);
+    public record UserLanguage(string Name, double Percentage);
+
     public class UserService
     {
-        public record UserRepository(string Name, string[] Languages);
-        public record UserLanguage(string Name, double Percentage);
-
         private record UserData(UserRepository[] UserRepositories, UserLanguage[] UserLanguages, DateTime CacheExpiration);
 
         private readonly IConfiguration configuration;
