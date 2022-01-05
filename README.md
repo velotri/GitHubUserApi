@@ -2,7 +2,7 @@
 
 API for retrieving information about repositories and programming languages of GitHub users.
 
-Implemented as Minimal API in NET 6.0.
+Implemented as Minimal API in .NET 6.
 
 Live demo available at:  
 [https://githubuserapi.azurewebsites.net/swagger/index.html](https://githubuserapi.azurewebsites.net/swagger/index.html)
