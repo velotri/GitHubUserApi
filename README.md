@@ -13,7 +13,7 @@ Live demo available at:
 
 - Enter project directory with command line.
 
-- (Optional) Provide GitHub personal access key. 
+- (Optional) Provide GitHub personal access token. 
 
     Unauthorized access to GitHub API is limited to 60 requests per hour from single IP.
     
